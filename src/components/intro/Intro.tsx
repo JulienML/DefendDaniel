@@ -56,7 +56,9 @@ const IntroScene: FC<IntroSceneProps> = ({
         } else if (language === 'es') {
           audio.src = '/sounds/intro_es.mp3';
         }
-
+        
+        audio.volume = 0.5;
+        
         await audio.load();
         await audio.play();
       } catch (error) {

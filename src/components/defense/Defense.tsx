@@ -50,7 +50,7 @@ const DefenseScene: FC<DefenseSceneProps> = ({
     const loadAndPlayAudio = async () => {
       try {
         audio.src = '/sounds/background_music.mp3';
-        audio.volume = 0.2;
+        audio.volume = 0.1;
 
         await audio.load();
         await audio.play();

@@ -55,6 +55,7 @@ const EndScene: FC<EndSceneProps> = ({
 
           const audio = new Audio(audioUrl);
           audioRef.current = audio;
+          audio.volume = 0.5;
           await audio.play();
         } catch (error) {
           console.error('Error playing verdict audio:', error);

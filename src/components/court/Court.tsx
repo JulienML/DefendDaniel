@@ -52,6 +52,7 @@ const CourtScene: FC<CourtSceneProps> = ({
         
         const audio = new Audio(audioUrl);
         audioRef.current = audio;
+        audio.volume = 0.5;
         
         audio.addEventListener('ended', () => {
           isPlayingRef.current = false;
