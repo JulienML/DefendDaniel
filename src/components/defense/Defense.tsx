@@ -1,62 +1,152 @@
+// /$$$$$$  /$$$$$$ /$$    /$$ /$$$$$$$$       /$$      /$$ /$$$$$$$$        /$$$$$$           /$$$$$  /$$$$$$  /$$$$$$$ 
+// /$$__  $$|_  $$_/| $$   | $$| $$_____/      | $$$    /$$$| $$_____/       /$$__  $$         |__  $$ /$$__  $$| $$__  $$
+// | $$  \__/  | $$  | $$   | $$| $$            | $$$$  /$$$$| $$            | $$  \ $$            | $$| $$  \ $$| $$  \ $$
+// | $$ /$$$$  | $$  |  $$ / $$/| $$$$$         | $$ $$/$$ $$| $$$$$         | $$$$$$$$            | $$| $$  | $$| $$$$$$$ 
+// | $$|_  $$  | $$   \  $$ $$/ | $$__/         | $$  $$$| $$| $$__/         | $$__  $$       /$$  | $$| $$  | $$| $$__  $$
+// | $$  \ $$  | $$    \  $$$/  | $$            | $$\  $ | $$| $$            | $$  | $$      | $$  | $$| $$  | $$| $$  \ $$
+// |  $$$$$$/ /$$$$$$   \  $/   | $$$$$$$$      | $$ \/  | $$| $$$$$$$$      | $$  | $$      |  $$$$$$/|  $$$$$$/| $$$$$$$/
+// \______/ |______/    \_/    |________/      |__/     |__/|________/      |__/  |__/       \______/  \______/ |_______/ 
+//
+// Hi, I'm Roland and i'm looking for a job.
+// Resume in /public/resume.pdf
+// roland.vrignon@roland.com
+// https://www.linkedin.com/in/roland-vrignon/
+//
+
+
 'use client';
-import { FC, useState, useEffect } from 'react';
+import { FC, useState, useEffect, Dispatch, SetStateAction } from 'react';
+import Image from 'next/image';
+
+interface Message {
+  content: string;
+  role: 'lawyer' | 'judge';
+}
+
+interface Chat {
+  messages: Message[];
+}
 
 interface DefenseSceneProps {
-  language: 'fr' | 'en';
-  round: number;
-  alibi: string[];
-  problematics: string[];
-  requiredWords: {
-    word: string;
-    position: number;
-  }[];
+  language: 'fr' | 'en' | 'es';
+  requiredWords: string[];
   setNextScene: () => void;
-  setLawyerAnswer: (answer: string) => void;
+  setChat: (chat: SetStateAction<Chat>) => void;
+  setCurrentQuestion: Dispatch<SetStateAction<string>>;
+  setReaction: Dispatch<SetStateAction<string>>;
+  setRequiredWords: Dispatch<SetStateAction<string[]>>;
 }
 
 const DefenseScene: FC<DefenseSceneProps> = ({
   language,
-  round,
-  alibi,
-  problematics,
   requiredWords,
   setNextScene,
-  setLawyerAnswer
+  setCurrentQuestion,
+  setChat,
+  setReaction,
+  setRequiredWords
 }) => {
   const [answer, setAnswer] = useState('');
-  const [insertedWords, setInsertedWords] = useState<boolean[]>(new Array(requiredWords.length).fill(false));
+  const [insertedWords, setInsertedWords] = useState<boolean[]>([]);
   const [countdown, setCountdown] = useState(60);
   const [isTimeUp, setIsTimeUp] = useState(false);
+  const [wordPositions, setWordPositions] = useState<Array<{ word: string; position: number }>>([]);
+  const [mandatoryWords, setMandatoryWords] = useState(requiredWords);
+  const [isLoading, setIsLoading] = useState(true);
+  const [ words ] = useState(requiredWords);
+
+  // Initialisation des mots obligatoires
+  useEffect(() => {
+    if (requiredWords.length > 0) {
+      setMandatoryWords(requiredWords);
+    }
+    setReaction('');
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [requiredWords]);
+
+  // Génération des positions et initialisation
+  useEffect(() => {
+    if (mandatoryWords.length > 0) {
+      const positions = generateWordPositions(mandatoryWords);
+      setWordPositions(positions);
+      setInsertedWords(new Array(mandatoryWords.length).fill(false));
+      setCurrentQuestion("");
+      setIsLoading(false);
+    }
+  }, [mandatoryWords]); // eslint-disable-line react-hooks/exhaustive-deps
+
+    // Reset des required words après initialisation
+  useEffect(() => {
+    if (!isLoading && wordPositions.length > 0) {
+      setRequiredWords([]);
+    }
+  }, [isLoading, wordPositions.length]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
+    if (isTimeUp) {
+      handleSubmit();
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isTimeUp])    
+
+  // Timer et reset de la question
+  useEffect(() => {
+    // Timer
     const timer = setInterval(() => {
       setCountdown((prev) => {
-        if (prev <= 1) {
+        if (prev === 0) {
           clearInterval(timer);
           setIsTimeUp(true);
-          handleSubmit(); // Auto-submit quand le timer atteint 0
-          return 0;
         }
         return prev - 1;
       });
     }, 1000);
 
     return () => clearInterval(timer);
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // On garde uniquement la dépendance answer car handleSubmit est stable
+
+  // Génère un nombre aléatoire entre 9 et 15
+  const generateRandomNumber = () => {
+    return Math.floor(Math.random() * (15 - 9 + 1)) + 9;
+  };
+
+  // Génère les positions pour les mots requis
+  const generateWordPositions = (words: string[]) => {
+    let currentPosition = generateRandomNumber(); // On commence à une position aléatoire
+    return words.map(word => {
+      const position = currentPosition;
+      currentPosition += generateRandomNumber(); // Ajoute un nombre aléatoire de mots pour le prochain mot requis
+      return {
+        word,
+        position
+      };
+    });
+  };
 
   // Fonction pour compter les mots
   const countWords = (text: string) => {
-    return text.trim().split(/\s+/).length;
+    // Remplacer temporairement les expressions requises par un seul mot
+    let modifiedText = text;
+    wordPositions.forEach(({ word }) => {
+      if (modifiedText.includes(word)) {
+        // Remplace l'expression complète par un placeholder unique
+        modifiedText = modifiedText.replace(word, 'SINGLEWORD');
+      }
+    });
+
+    // Maintenant compte les mots normalement
+    return modifiedText.trim().split(/\s+/).length || 0;
   };
 
   // Fonction pour vérifier si on doit insérer un mot obligatoire
   const checkAndInsertRequiredWord = (text: string) => {
     const currentWordCount = countWords(text);
     let newText = text;
-    let newInsertedWords = [...insertedWords];
+    const newInsertedWords = [...insertedWords];
     let wordInserted = false;
 
-    requiredWords.forEach((word, index) => {
+    wordPositions.forEach((word, index) => {
       if (!insertedWords[index] && currentWordCount === word.position && text.endsWith(' ')) {
         newText = `${text}${word.word} `;
         newInsertedWords[index] = true;
@@ -73,10 +163,10 @@ const DefenseScene: FC<DefenseSceneProps> = ({
 
   // Fonction pour vérifier si on peut supprimer du texte
   const canDeleteAt = (text: string, cursorPosition: number) => {
-    const textBeforeCursor = text.substring(0, cursorPosition);
-    const wordsBeforeCursor = countWords(textBeforeCursor);
+    // const textBeforeCursor = text.substring(0, cursorPosition);
+    // const wordsBeforeCursor = countWords(textBeforeCursor);
 
-    return !requiredWords.some((word, index) => {
+    return !wordPositions.some((word, index) => {
       if (!insertedWords[index]) return false;
 
       const wordStartPosition = text.indexOf(word.word);
@@ -88,6 +178,7 @@ const DefenseScene: FC<DefenseSceneProps> = ({
 
   const handleTextChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const newText = e.target.value;
+    setAnswer(newText);
     const cursorPosition = e.target.selectionStart;
 
     // Si c'est une suppression
@@ -103,7 +194,9 @@ const DefenseScene: FC<DefenseSceneProps> = ({
   };
 
   const handleSubmit = () => {
-    setLawyerAnswer(answer);
+    setChat(prevChat => ({
+      messages: [...prevChat.messages, { content: answer, role: 'lawyer', requiredWords: words }]
+    }));
     setNextScene();
   };
 
@@ -115,79 +208,97 @@ const DefenseScene: FC<DefenseSceneProps> = ({
 
   // Vérifie si la réponse est valide pour soumission
   const isAnswerValid = () => {
-    const lastWordPosition = Math.max(...requiredWords.map(word => word.position));
+    const lastWordPosition = Math.max(...wordPositions.map(word => word.position));
     const currentWordCount = countWords(answer);
     return currentWordCount >= lastWordPosition && insertedWords.every(inserted => inserted);
   };
 
   return (
-    <div className="w-screen h-screen flex flex-col p-8 bg-black text-white">
-      {/* Header avec le compte à rebours */}
-      <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-bold">
-          {language === 'fr' ? 'Préparez votre défense' : 'Prepare your defense'}
-        </h2>
-        <div className={`text-2xl font-mono ${countdown < 10 ? 'text-red-500' : 'text-white'}`}>
-          {formatTime(countdown)}
-        </div>
-      </div>
-
-      {/* Zone de contexte */}
-      <div className="bg-gray-800 p-4 rounded-lg mb-6">
-        <h3 className="text-xl mb-2">
-          {language === 'fr' ? 'Alibi du client' : 'Client\'s alibi'}:
-        </h3>
-        <p className="text-gray-300 mb-4">{alibi[round - 1]}</p>
-
-        <h3 className="text-xl mb-2">
-          {language === 'fr' ? 'Point problématique' : 'Problematic point'}:
-        </h3>
-        <p className="text-red-400">{problematics[round - 1]}</p>
-      </div>
-
-      {/* Mots requis */}
-      <div className="bg-purple-900 p-4 rounded-lg mb-6">
-        <h3 className="text-xl mb-2">
-          {language === 'fr' ? 'Mots/Expressions à utiliser' : 'Required words/expressions'}:
-        </h3>
-        <div className="space-y-2">
-          {requiredWords.map((item, index) => (
-            <div key={index} className="flex items-center space-x-2">
-              <span className="text-purple-300">
-                {language === 'fr'
-                  ? `Après le ${item.position}${item.position === 1 ? 'er' : 'ème'} mot`
-                  : `After the ${item.position}${item.position === 1 ? 'st' : item.position === 2 ? 'nd' : item.position === 3 ? 'rd' : 'th'} word`
-                }:
-              </span>
-              <span className="text-white font-bold">{item.word}</span>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Zone de texte */}
-      <textarea
-        value={answer}
-        onChange={handleTextChange}
-        disabled={isTimeUp}
-        placeholder={language === 'fr'
-          ? "Écrivez votre défense ici..."
-          : "Write your defense here..."}
-        className="flex-grow w-full p-4 bg-gray-900 text-white rounded-lg resize-none mb-6 focus:outline-none focus:ring-2 focus:ring-blue-500"
+    <div className="relative w-screen h-screen">
+      {/* Image de fond */}
+      <Image
+        src="https://ik.imagekit.io/z0tzxea0wgx/MistralGameJam/DD_attorney2_gbcNJRrYM.png?updatedAt=1737835883087"
+        alt="Background"
+        fill
+        className="object-cover"
+        priority
       />
 
-      {/* Bouton de soumission */}
-      <button
-        onClick={handleSubmit}
-        disabled={!isAnswerValid()}
-        className={`px-8 py-4 rounded-lg text-xl transition-all duration-300 ${
-          isAnswerValid()
-            ? 'bg-blue-600 hover:bg-blue-700 cursor-pointer'
-            : 'bg-gray-600 cursor-not-allowed'
-        }`}
-      >
-        {language === 'fr' ? 'Soumettre' : 'Submit'}
-      </button>
+      {/* Contenu avec overlay noir */}
+      <div className="absolute inset-0">
+        {isLoading ? (
+          <div className="flex items-center justify-center h-full">
+            <div className="text-2xl text-gray-300">
+              {language === 'fr' ? 'Chargement...' : language === 'en' ? 'Loading...' : 'Cargando...'}
+            </div>
+          </div>
+        ) : (
+          <div className="flex flex-col justify-end p-8 h-full">
+            {/* Header avec le compte à rebours */}
+            <div className="flex justify-between items-center mb-6">
+              <div className={`text-8xl roboto-slab ${countdown < 10 ? 'text-red-500' : 'text-white'}`}>
+                {formatTime(countdown)}
+              </div>
+            </div>
+
+            {/* Prochain mot requis */}
+            <div className="mb-6">
+              {wordPositions.map((item, index) => {
+                // Ne montrer que le premier mot non inséré
+                if (insertedWords[index] || index > 0 && !insertedWords[index - 1]) return null;
+                const remainingWords = item.position - countWords(answer);
+                return (
+                  <div key={index} className="bg-black/60 border border-black border-8 p-6 text-white">
+                    <span className="text-5xl text-sky-500 roboto-slab mt-2">
+                      {item.word.toUpperCase()}
+                    </span>
+                    <span className="text-5xl text-white roboto-slab mt-2">                      {language === 'fr'
+                      ? `dans `
+                      : language === 'en'
+                        ? `in `
+                        : `en `
+                    }</span>
+                    <span className="text-5xl text-red-500 roboto-slab mt-2">{remainingWords}</span>
+                    <span className="text-5xl text-white roboto-slab mt-2">                      {language === 'fr'
+                      ? ` mots`
+                      : language === 'en'
+                        ? ` words`
+                        : ` palabras`
+                    }</span>
+                  </div>
+                );
+              }).filter(Boolean)[0]}
+            </div>
+
+            {/* Zone de texte avec bouton submit en position absolue */}
+            <div className="relative w-full mb-6">
+              <textarea
+                value={answer}
+                onChange={handleTextChange}
+                disabled={isTimeUp}
+                placeholder={language === 'fr'
+                  ? "Écrivez votre défense ici..."
+                  : language === 'en'
+                    ? "Write your defense here..."
+                    : "Write your defense here..."}
+                className="w-full p-6 bg-black/60 border border-black border-8 text-white text-4xl rounded-none focus:outline-none roboto-slab h-[30vh]"
+              />
+
+              {/* Bouton de soumission */}
+              <button
+                onClick={() => handleSubmit()}
+                disabled={!isAnswerValid()}
+                className={`absolute bottom-5 right-5 px-8 py-4 rounded-lg text-xl transition-all duration-300 ${isAnswerValid()
+                    ? 'bg-sky-500 hover:bg-blue-700 cursor-pointer'
+                    : 'bg-gray-600 cursor-not-allowed'
+                  }`}
+              >
+                {language === 'fr' ? 'Soumettre' : language === 'en' ? 'Submit' : 'Submit'}
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 };

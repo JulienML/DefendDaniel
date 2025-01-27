@@ -2,6 +2,45 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer base {
+  :root {
+    --font-shadows: var(--font-shadows-into-light);
+  }
+}
+
+@layer utilities {
+  .shadows-into-light-regular {
+    font-family: var(--font-shadows);
+  }
+  .font-crimson {
+    font-family: var(--font-crimson);
+  }
+}
+
 body {
   font-family: Arial, Helvetica, sans-serif;
+}
+
+.shadows-into-light-regular {
+  font-family: "Shadows Into Light", serif;
+  font-weight: 400;
+  font-style: normal;
+}
+
+.poppins {
+  font-family: var(--font-poppins);
+  font-weight: 400;
+  font-style: normal;
+}
+
+.roboto {
+  font-family: var(--font-roboto);
+  font-weight: 400;
+  font-style: normal;
+}
+
+.roboto-slab {
+  font-family: var(--font-roboto-slab);
+  font-weight: 400;
+  font-style: normal;
 }

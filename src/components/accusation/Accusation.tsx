@@ -1,78 +1,85 @@
+// /$$$$$$  /$$$$$$ /$$    /$$ /$$$$$$$$       /$$      /$$ /$$$$$$$$        /$$$$$$           /$$$$$  /$$$$$$  /$$$$$$$ 
+// /$$__  $$|_  $$_/| $$   | $$| $$_____/      | $$$    /$$$| $$_____/       /$$__  $$         |__  $$ /$$__  $$| $$__  $$
+// | $$  \__/  | $$  | $$   | $$| $$            | $$$$  /$$$$| $$            | $$  \ $$            | $$| $$  \ $$| $$  \ $$
+// | $$ /$$$$  | $$  |  $$ / $$/| $$$$$         | $$ $$/$$ $$| $$$$$         | $$$$$$$$            | $$| $$  | $$| $$$$$$$ 
+// | $$|_  $$  | $$   \  $$ $$/ | $$__/         | $$  $$$| $$| $$__/         | $$__  $$       /$$  | $$| $$  | $$| $$__  $$
+// | $$  \ $$  | $$    \  $$$/  | $$            | $$\  $ | $$| $$            | $$  | $$      | $$  | $$| $$  | $$| $$  \ $$
+// |  $$$$$$/ /$$$$$$   \  $/   | $$$$$$$$      | $$ \/  | $$| $$$$$$$$      | $$  | $$      |  $$$$$$/|  $$$$$$/| $$$$$$$/
+// \______/ |______/    \_/    |________/      |__/     |__/|________/      |__/  |__/       \______/  \______/ |_______/ 
+//
+// Hi, I'm Roland and i'm looking for a job.
+// Resume in /public/resume.pdf
+// roland.vrignon@roland.com
+// https://www.linkedin.com/in/roland-vrignon/
+//
+
+
 'use client';
-import { FC, useState, useEffect } from 'react';
+import { FC } from 'react';
+import Image from 'next/image';
+
+interface Story {
+  accusation: {
+    description: string;
+    alibi: string[];
+  };
+}
 
 interface AccusationSceneProps {
-  language: 'fr' | 'en';
-  accusation: string;
-  alibi: string[];
-  problematics: string[];
+  language: 'fr' | 'en' | 'es';
+  story: Story | null;
   setNextScene: () => void;
 }
 
 const AccusationScene: FC<AccusationSceneProps> = ({
   language,
-  accusation,
-  alibi,
-  problematics,
-  setNextScene
+  story,
+  setNextScene,
 }) => {
-  const [visible, setVisible] = useState(false);
-
-  useEffect(() => {
-    setVisible(true);
-  }, []);
-
   return (
-    <div className="w-screen h-screen flex items-center justify-center bg-black">
-      <div className={`space-y-8 text-center transition-opacity duration-1000 ${
-        visible ? 'opacity-100' : 'opacity-0'
-      }`}>
-        <div className="max-w-3xl mx-auto space-y-8 p-6">
-          {/* Accusation */}
-          <div className="space-y-4">
-            <h2 className="text-white text-3xl font-bold mb-4">
-              {language === 'fr' ? 'Accusation' : 'Accusation'}
-            </h2>
-            <div className="bg-red-900 p-6 rounded-lg">
-              <p className="text-white text-xl">
-                {accusation}
+    <div className="relative w-screen h-screen">
+      {/* Image de fond */}
+      <Image
+        src="https://ik.imagekit.io/z0tzxea0wgx/MistralGameJam/DD_BG1_rva-mKDVA.jpg?updatedAt=1737835881047"
+        alt="Background"
+        fill
+        className="object-cover"
+        priority
+      />
+
+      {/* Overlay noir */}
+      <div className="absolute inset-0 bg-black/70">
+        {/* Contenu */}
+        <div className="relative z-10 flex flex-col items-center justify-center h-full p-8 space-y-8">
+          <div className="max-w-3xl w-full space-y-8">
+            {/* Description */}
+            <div>
+              <h2 className="text-4xl font-bold text-white mb-4 roboto-slab">
+                {language === 'fr' ? "Chef d'accusation" : language === 'en' ? 'Indictment' : 'Acusación'}
+              </h2>
+              <p className="text-xl text-white roboto-slab">
+                {story?.accusation.description}
               </p>
             </div>
-          </div>
 
-          {/* Alibis */}
-          <div className="space-y-4">
-            <h2 className="text-white text-2xl font-bold">
-              {language === 'fr' ? 'Vos alibis' : 'Your alibis'}
-            </h2>
-            <div className="bg-gray-800 p-6 rounded-lg space-y-4">
-              {alibi.map((item, index) => (
-                <p key={index} className="text-white text-lg">
-                  • {item}
-                </p>
-              ))}
-            </div>
-          </div>
-
-          {/* Points problématiques */}
-          <div className="space-y-4">
-            <h2 className="text-white text-2xl font-bold">
-              {language === 'fr' ? 'Points problématiques' : 'Problematic points'}
-            </h2>
-            <div className="bg-red-800 p-6 rounded-lg space-y-4">
-              {problematics.map((item, index) => (
-                <p key={index} className="text-white text-lg">
-                  • {item}
-                </p>
-              ))}
+            {/* Alibis */}
+            <div>
+              <h2 className="text-4xl font-bold text-white mb-4 roboto-slab">
+                {language === 'fr' ? 'Alibis' : language === 'en' ? 'Alibis' : 'Coartadas'}
+              </h2>
+              <ul className="list-disc list-inside text-white space-y-2 roboto-slab">
+                {story?.accusation.alibi.map((alibi, index) => (
+                  <li key={index} className="text-xl">{alibi}</li>
+                ))}
+              </ul>
             </div>
           </div>
 
           <button
             onClick={setNextScene}
-            className="px-8 py-4 text-xl font-bold text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors mt-8"
+            className="px-8 py-4 text-xl font-bold text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors roboto-slab"
           >
-            {language === 'fr' ? 'Commencer le procès' : 'Start the trial'}
+            {language === 'fr' ? 'Allez au tribunal !' : language === 'en' ? 'Go to court!' : '¡A los tribunales!'}
           </button>
         </div>
       </div>

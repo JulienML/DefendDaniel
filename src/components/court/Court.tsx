@@ -1,73 +1,169 @@
+// /$$$$$$  /$$$$$$ /$$    /$$ /$$$$$$$$       /$$      /$$ /$$$$$$$$        /$$$$$$           /$$$$$  /$$$$$$  /$$$$$$$ 
+// /$$__  $$|_  $$_/| $$   | $$| $$_____/      | $$$    /$$$| $$_____/       /$$__  $$         |__  $$ /$$__  $$| $$__  $$
+// | $$  \__/  | $$  | $$   | $$| $$            | $$$$  /$$$$| $$            | $$  \ $$            | $$| $$  \ $$| $$  \ $$
+// | $$ /$$$$  | $$  |  $$ / $$/| $$$$$         | $$ $$/$$ $$| $$$$$         | $$$$$$$$            | $$| $$  | $$| $$$$$$$ 
+// | $$|_  $$  | $$   \  $$ $$/ | $$__/         | $$  $$$| $$| $$__/         | $$__  $$       /$$  | $$| $$  | $$| $$__  $$
+// | $$  \ $$  | $$    \  $$$/  | $$            | $$\  $ | $$| $$            | $$  | $$      | $$  | $$| $$  | $$| $$  \ $$
+// |  $$$$$$/ /$$$$$$   \  $/   | $$$$$$$$      | $$ \/  | $$| $$$$$$$$      | $$  | $$      |  $$$$$$/|  $$$$$$/| $$$$$$$/
+// \______/ |______/    \_/    |________/      |__/     |__/|________/      |__/  |__/       \______/  \______/ |_______/ 
+//
+// Hi, I'm Roland and i'm looking for a job.
+// Resume in /public/resume.pdf
+// roland.vrignon@roland.com
+// https://www.linkedin.com/in/roland-vrignon/
+//
+
+
 'use client';
-import { FC, useEffect, useState } from 'react';
+import { FC, useEffect, useState, useRef } from 'react';
+import Image from 'next/image';
 
 interface CourtSceneProps {
-  language: 'fr' | 'en';
-  round: number;
-  judgeQuestions: string[];
   setNextScene: () => void;
+  currentQuestion: string;
+  reaction: string;
+  round: number;
 }
 
 const CourtScene: FC<CourtSceneProps> = ({
-  language,
-  round,
-  judgeQuestions,
   setNextScene,
+  currentQuestion,
+  reaction,
+  round
 }) => {
-  const [visible, setVisible] = useState(false);
-  const [buttonEnabled, setButtonEnabled] = useState(false);
-  const [countdown, setCountdown] = useState(5);
+  const [showFirstImage, setShowFirstImage] = useState(true);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const isPlayingRef = useRef<boolean>(false);
 
   useEffect(() => {
-    setVisible(true);
-    const timer = setInterval(() => {
-      setCountdown((prev) => {
-        if (prev <= 1) {
-          setButtonEnabled(true);
-          clearInterval(timer);
-          return 0;
+    const playAudio = async () => {
+      // Si déjà en train de jouer, on ne fait rien
+      if (isPlayingRef.current || !currentQuestion) return;
+      
+      try {
+        isPlayingRef.current = true;        
+        const response = await fetch('/api/voice', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            language: 'en',
+            text: reaction !== '' ? reaction + currentQuestion : currentQuestion,
+            role: 'judge'
+          })
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to generate audio');
         }
-        return prev - 1;
-      });
-    }, 1000);
 
-    return () => clearInterval(timer);
-  }, []);
+        const audioBlob = await response.blob();
+        const audioUrl = URL.createObjectURL(audioBlob);
 
-  const handleNext = () => {
+        if (audioRef.current) {
+          audioRef.current.pause();
+          audioRef.current = null;
+        }
+        
+        const audio = new Audio(audioUrl);
+        audioRef.current = audio;
+        
+        audio.addEventListener('ended', () => {
+          isPlayingRef.current = false;
+        });
+
+        await audio.play();
+      } catch (error) {
+        console.error('Error playing audio:', error);
+        isPlayingRef.current = false;
+      }
+    };
+
+    playAudio();
+
+    return () => {
+      isPlayingRef.current = false;
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current = null;
+      }
+    };
+  }, [currentQuestion, reaction]);
+
+  const handleNextScene = () => {
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current = null;
+    }
     setNextScene();
   };
 
-  return (
-    <div className="w-screen h-screen flex items-center justify-center bg-black">
-      <div className={`space-y-8 text-center transition-opacity duration-1000 ${
-        visible ? 'opacity-100' : 'opacity-0'
-      }`}>
-        <div className="relative w-32 h-32 mx-auto mb-8">
-          {/* <img
-            src="/judge.png"
-            alt="Judge"
-            className="w-full h-full object-contain"
-          /> */}
-        </div>
-        <p className="text-white text-3xl font-serif max-w-2xl">
-          {judgeQuestions[round - 1]}
-        </p>
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setShowFirstImage(false);
+    }, 2000);
 
-        <button
-          onClick={handleNext}
-          disabled={!buttonEnabled}
-          className={`px-8 py-3 rounded-lg text-xl transition-all duration-300 ${
-            buttonEnabled
-              ? 'bg-blue-600 text-white hover:bg-blue-700 cursor-pointer'
-              : 'bg-gray-600 text-gray-400 cursor-not-allowed'
-          }`}
-        >
-          {buttonEnabled ? (language === 'fr' ? 'Préparer la défense' : 'Prepare defense') : `${countdown}s`}
-        </button>
+    return () => clearTimeout(timer);
+  }, []);
+
+  return (
+    <div className="relative w-screen h-screen">
+      {/* Image de fond statique */}
+      <Image
+        src="https://ik.imagekit.io/z0tzxea0wgx/MistralGameJam/DD_judge2_FoYazvSFmu.png?updatedAt=1737835883172"
+        alt="Background"
+        fill
+        className="object-cover"
+        priority
+      />
+
+      {/* Image superposée avec transition */}
+      <div className={`absolute inset-0 transition-opacity duration-500 ${showFirstImage ? 'opacity-100' : 'opacity-0'}`}>
+        <Image
+          src="https://ik.imagekit.io/z0tzxea0wgx/MistralGameJam/DD_judge1_Bn04jNl_E.png?updatedAt=1737835883169"
+          alt="Overlay"
+          fill
+          className="object-cover"
+          priority
+        />
+      </div>
+
+      {/* Rectangle noir en bas */}
+      <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-[80%] bg-black/60 border border-black border-8 mb-[8vh] p-6">
+        <div className="text-white roboto-slab">
+          <p className="text-4xl mb-4">
+            {reaction !== '' && round !== 1 ? reaction.replace(/\?/g, '') : ''} <br />
+            {currentQuestion ? currentQuestion : '...'}
+          </p>
+
+          {/* Flèche à droite */}
+          <div className="flex justify-end">
+            <button
+              onClick={handleNextScene}
+              className="text-white hover:text-blue-400 transition-colors"
+              aria-label="Continuer"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-12 w-12"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M14 5l7 7m0 0l-7 7m7-7H3"
+                />
+              </svg>
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   );
-}
+};
 
 export default CourtScene;

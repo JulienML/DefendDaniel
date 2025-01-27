@@ -16,30 +16,20 @@
 
 'use client';
 
-type Language = {
-  code: string;
-  name: string;
-};
+import { FC, ReactNode } from 'react';
 
-const languages: Language[] = [
-  { code: 'fr', name: 'Français' },
-  { code: 'en', name: 'English' },
-  { code: 'es', name: 'Español' },
-];
-
-export const LanguageSelector = ({ onSelect }: { onSelect: (lang: string) => void }) => {
-  return (
-    <select
-      onChange={(e) => onSelect(e.target.value)}
-      className="px-4 py-2 rounded-lg border-2 border-gray-300"
-    >
-      {languages.map((lang) => (
-        <option key={lang.code} value={lang.code}>
-          {lang.name}
-        </option>
-      ))}
-    </select>
-  );
+interface LayoutProps {
+  children: ReactNode;
 }
 
-export default LanguageSelector;
+const Layout: FC<LayoutProps> = ({ children }) => {
+  return (
+    <div className="w-screen h-screen bg-black overflow-hidden">
+      <div className="w-full h-full overflow-y-auto">
+        {children}
+      </div>
+    </div>
+  );
+};
+
+export default Layout;
