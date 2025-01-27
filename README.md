@@ -6,11 +6,19 @@
 
 ### 🕵️ The Story
 
-Daniel is just an ordinary guy who hasn’t done anything wrong—or so he claims. Yet, here he is, summoned to court. Daniel doesn't have much money, which is why he’s chosen you, dear counselor, to defend him. But you’re not an ordinary lawyer.
+Daniel is just an ordinary guy who hasn't done anything wrong—or so he claims. Yet, here he is, summoned to court. Daniel doesn't have much money, which is why he's chosen you, dear counselor, to defend him. But you're not an ordinary lawyer.
 
 You possess a strange Neuralink implant that whispers words into your mind, and not everything seems right with you upstairs. Will you rise to the challenge and deliver justice for Daniel, or will your "special" condition jeopardize your case?
 
-**Your mission:** Defend Daniel within a one-minute time frame, using key phrases imposed by your Neuralink implant. Construct your arguments wisely—those mandatory words might just ruin your defense if you’re not careful!
+**Your mission:** Defend Daniel within a one-minute time frame, using key phrases imposed by your Neuralink implant. Construct your arguments wisely—those mandatory words might just ruin your defense if you're not careful!
+
+### 📸 Game Screenshots
+
+| **Menu Screen** | **Courtroom Scene** |
+|:---:|:---:|
+| ![Menu](/public/images/menu.png) | ![Court](/public/images/court.png) |
+| ![Lawyer](/public/images/lawyer.png) | ![Verdict](/public/images/verdict.png) |
+| **Lawyer's Office** | **Verdict Scene** |
 
 ---
 
