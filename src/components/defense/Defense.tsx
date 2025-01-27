@@ -1,5 +1,5 @@
 'use client';
-import { FC, useState, useEffect, Dispatch, SetStateAction } from 'react';
+import { FC, useState, useEffect, Dispatch, SetStateAction, useRef } from 'react';
 import Image from 'next/image';
 
 interface Message {
@@ -38,6 +38,37 @@ const DefenseScene: FC<DefenseSceneProps> = ({
   const [mandatoryWords, setMandatoryWords] = useState(requiredWords);
   const [isLoading, setIsLoading] = useState(true);
   const [ words ] = useState(requiredWords);
+  
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  useEffect(() => {
+    const audio = new Audio();
+    audio.id = 'defenseAudio';
+    document.body.appendChild(audio);
+    audioRef.current = audio;
+
+    const loadAndPlayAudio = async () => {
+      try {
+        audio.src = '/sounds/background_music.mp3';
+        audio.volume = 0.2;
+
+        await audio.load();
+        await audio.play();
+      } catch (error) {
+        console.log('Audio playback error:', error);
+      }
+    };
+
+    loadAndPlayAudio();
+
+    return () => {
+      if (audioRef.current) {
+        audioRef.current.pause();
+        document.body.removeChild(audioRef.current);
+        audioRef.current = null;
+      }
+    };
+  }, []);
 
   // Initialisation des mots obligatoires
   useEffect(() => {
