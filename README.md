@@ -26,12 +26,17 @@ You possess a strange Neuralink implant that whispers words into your mind, and 
 
 | Feature	       | Status          |
 | :--------------- |:----------------|
-| Enhanced Prompts	  |   🚧      |
-| Background Music  | 🚧            |
-| Dynamic Case Scenarios  | 🚧         |
-| Leaderboard System  | 🚧        |
-| Responsive Mode  | 🚧        |
-| Introduction Text Layout  | 🚧        |
+| Enhanced Prompts	  |   🔵      |
+| Background Music  | 🔵            |
+| Dynamic Case Scenarios  | 🔵         |
+| Leaderboard System  | 🔵        |
+| Responsive Mode  | 🔵        |
+| Introduction Text Layout  | 🔵        |
+
+> Legend:
+> - 🟡 In Progress: Currently being developed
+> - 🔵 Planned: On the roadmap
+> - 🟢 Completed: Ready to use
 
 ---
 
@@ -86,9 +91,60 @@ You possess a strange Neuralink implant that whispers words into your mind, and 
 
 ---
 
-## 🌟 Contributing
+## 🤝 Contributing
 
-We welcome contributions of any kind! Feel free to fork the repository and open a pull request. Please adhere to our coding standards and guidelines (enforced by ESLint).
+We welcome and appreciate contributions from the community! Here's how you can contribute:
+
+### Types of Contributions
+
+- 🐛 **Bug Reports**: Create an issue describing the bug and how to reproduce it
+- ✨ **Feature Requests**: Suggest new features or improvements
+- 📝 **Documentation**: Help improve or translate the documentation
+- 💻 **Code Contributions**: Submit pull requests with bug fixes or new features
+
+### How to Contribute
+
+1. **Fork the Repository**
+   ```bash
+   git clone https://github.com/your-username/DefendDaniel.git
+   ```
+
+2. **Create a Branch**
+   ```bash
+   git checkout -b feature/your-feature-name
+   ```
+
+3. **Make Your Changes**
+   - Follow the existing code style
+   - Add comments where necessary
+   - Update documentation if needed
+
+4. **Test Your Changes**
+   - Ensure all existing tests pass
+   - Add new tests if needed
+   - Test the application locally
+
+5. **Submit a Pull Request**
+   - Provide a clear description of the changes
+   - Reference any related issues
+   - Update the README if needed
+
+### Development Guidelines
+
+- Use TypeScript for all new code
+- Follow the existing project structure
+- Use meaningful commit messages
+- Keep pull requests focused on a single feature or fix
+- Add appropriate documentation for new features
+
+### Need Help?
+
+Feel free to create an issue for:
+- Questions about the codebase
+- Clarification on how to implement a feature
+- Discussion about potential improvements
+
+We aim to review all contributions within a week. Thank you for helping improve DefendDaniel! 🙏
 
 ---
 
