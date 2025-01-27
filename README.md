@@ -30,6 +30,8 @@ You possess a strange Neuralink implant that whispers words into your mind, and 
 | Background Music  | 🚧            |
 | Dynamic Case Scenarios  | 🚧         |
 | Leaderboard System  | 🚧        |
+| Responsive Mode  | 🚧        |
+| Introduction Text Layout  | 🚧        |
 
 ---
 
@@ -41,7 +43,13 @@ You possess a strange Neuralink implant that whispers words into your mind, and 
    cd DefendDaniel
    ```
 
-2. **Install Dependencies** Using **pnpm** (preferred):
+2. **Configure Environment Variables**
+   ```bash
+   cp .env.example .env
+   ```
+   Open `.env` file and fill in the required API keys and configuration values
+
+3. **Install Dependencies** Using **pnpm** (preferred):
    ```bash
     pnpm install
    ```
@@ -50,9 +58,8 @@ You possess a strange Neuralink implant that whispers words into your mind, and 
    ```bash
     npm install
    ```
-   cd DefendDaniel
 
-3. **Run the Development Server**
+4. **Run the Development Server**
    ```bash
    pnpm run dev
    ```
