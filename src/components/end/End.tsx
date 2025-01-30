@@ -26,6 +26,23 @@ const EndScene: FC<EndSceneProps> = ({
     if (verdict) {
       setIsLoading(false);
 
+      const playSoundEffect = async () => {
+        try {
+          if (verdict.verdict) {
+            const audio = new Audio('/sounds/applause.mp3');
+            audio.volume = 0.2;
+            await audio.play();
+          }
+          else {
+            const audio = new Audio('/sounds/booo.mp3');
+            audio.volume = 0.2;
+            await audio.play();
+          }
+        } catch (error) {
+          console.error('Error playing sound effect:', error);
+        }
+      }
+
       const playVerdict = async () => {
         try {
           const response = await fetch('/api/voice', {
@@ -65,7 +82,8 @@ const EndScene: FC<EndSceneProps> = ({
           console.error('Error playing verdict audio:', error);
         }
       };
-
+      
+      playSoundEffect();
       playVerdict();
     }
 
