@@ -3,6 +3,7 @@ import { FC, useEffect, useState, useRef } from 'react';
 import Image from 'next/image';
 
 interface CourtSceneProps {
+  language: 'fr' | 'en' | 'es';
   setNextScene: () => void;
   currentQuestion: string;
   reaction: string;
@@ -10,6 +11,7 @@ interface CourtSceneProps {
 }
 
 const CourtScene: FC<CourtSceneProps> = ({
+  language,
   setNextScene,
   currentQuestion,
   reaction,
@@ -32,7 +34,7 @@ const CourtScene: FC<CourtSceneProps> = ({
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            language: 'en',
+            language: language,
             text: reaction !== '' ? reaction + currentQuestion : currentQuestion,
             role: 'judge'
           })
@@ -44,6 +46,11 @@ const CourtScene: FC<CourtSceneProps> = ({
 
         const audioBlob = await response.blob();
         const audioUrl = URL.createObjectURL(audioBlob);
+        
+        const volumeHeader = response.headers.get('X-Volume');
+        const volume = volumeHeader ? parseFloat(volumeHeader) : 1;
+
+        console.log('Volume:', volume);
 
         if (audioRef.current) {
           audioRef.current.pause();
@@ -52,7 +59,7 @@ const CourtScene: FC<CourtSceneProps> = ({
         
         const audio = new Audio(audioUrl);
         audioRef.current = audio;
-        audio.volume = 0.5;
+        audio.volume = volume;
         
         audio.addEventListener('ended', () => {
           isPlayingRef.current = false;

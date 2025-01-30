@@ -58,7 +58,7 @@ const LawyerScene: FC<LawyerSceneProps> = ({
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            language,
+            language: language,
             text: answer,
             role: 'lawyer'
           })
@@ -70,8 +70,16 @@ const LawyerScene: FC<LawyerSceneProps> = ({
 
         const audioBlob = await response.blob();
         const audioUrl = URL.createObjectURL(audioBlob);
+        
+        
+        const volumeHeader = response.headers.get('X-Volume');
+        const volume = volumeHeader ? parseFloat(volumeHeader) : 1;
+
+        console.log('Volume:', volume);
+
         const audio = new Audio(audioUrl);
         audioRef.current = audio;
+        audio.volume = volume;
         audio.play();
       } catch (error) {
         console.error('Error playing audio:', error);
