@@ -26,6 +26,23 @@ const EndScene: FC<EndSceneProps> = ({
     if (verdict) {
       setIsLoading(false);
 
+      const playSoundEffect = async () => {
+        try {
+          if (verdict.verdict) {
+            const audio = new Audio('/sounds/applause.mp3');
+            audio.volume = 0.2;
+            await audio.play();
+          }
+          else {
+            const audio = new Audio('/sounds/booo.mp3');
+            audio.volume = 0.2;
+            await audio.play();
+          }
+        } catch (error) {
+          console.error('Error playing sound effect:', error);
+        }
+      }
+
       const playVerdict = async () => {
         try {
           const response = await fetch('/api/voice', {
@@ -34,7 +51,7 @@ const EndScene: FC<EndSceneProps> = ({
               'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-              language,
+              language: language,
               text: verdict.argument,
               role: 'judge'
             })
@@ -46,21 +63,27 @@ const EndScene: FC<EndSceneProps> = ({
 
           const audioBlob = await response.blob();
           const audioUrl = URL.createObjectURL(audioBlob);
+          
+          const volumeHeader = response.headers.get('X-Volume');
+          const volume = volumeHeader ? parseFloat(volumeHeader) : 1;
 
+          console.log('Volume:', volume);
 
-        if (audioRef.current) {
-          audioRef.current.pause();
-          audioRef.current = null;
-        }
+          if (audioRef.current) {
+            audioRef.current.pause();
+            audioRef.current = null;
+          }
 
           const audio = new Audio(audioUrl);
           audioRef.current = audio;
+          audio.volume = volume;
           await audio.play();
         } catch (error) {
           console.error('Error playing verdict audio:', error);
         }
       };
-
+      
+      playSoundEffect();
       playVerdict();
     }
 
